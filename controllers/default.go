@@ -4,8 +4,8 @@ import (
 	"cat/models"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
+
+	myutils "cat/utils"
 
 	"github.com/astaxie/beego"
 )
@@ -15,53 +15,51 @@ type MainController struct {
 }
 
 func (c *MainController) Get() {
-	// urlByid := "https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=abys&api_key=live_dnADHUMZofKkKEslnylF3VJTmvafvStFpbjjOHxuhAXVIjSRAYN4uUJnR5JZcXT1"
 	breedsUrl := "https://api.thecatapi.com/v1/breeds"
 	breeds := &models.Breeds{}
 	aBreed := &models.CatBreed{}
-	fmt.Println("root hit")
-	res, err := http.Get(breedsUrl)
+
+	//get byte data from server by providing url
+	data, err := myutils.HttpGetRequest(breedsUrl)
 	if err != nil {
-		fmt.Print("Some error happend while loading data from server")
+		fmt.Println("Something went wrong while getting data from server")
 	}
-	// res.Body.Close()
-	data, errr := io.ReadAll(res.Body)
-	if errr != nil {
-		fmt.Print("error happend while reading...")
-	}
+	//take json data as byte and a struct. convert json to struct and set field to struct reference.
 	parseError := json.Unmarshal(data, breeds)
 	if parseError != nil {
 		fmt.Print("something happend while parsing json data")
 	}
-	// fmt.Println(len(*breeds))
-	numberOfBreeds := 10
-	if len(*breeds) < numberOfBreeds {
-		numberOfBreeds = len(*breeds)
+
+	//check that weather breed is empty or not
+	if len(*breeds) < 1 {
+		fmt.Println("empty data")
 	}
+	//declare a map to contain breed name and id
 	var breedsNameAndId = make(map[string]interface{})
-	for i := 0; i < numberOfBreeds; i++ {
+
+	for i := 0; i < len(*breeds); i++ {
 		breedsNameAndId[(*breeds)[i].Name] = (*breeds)[i].ID
 	}
+	//deaclare a string to hold first breed id
 	firstBreedId := ""
-	if len(*breeds) > 0 {
-		firstBreedId = (*breeds)[0].ID
-	}
+	firstBreedId = (*breeds)[0].ID
 
-	resp, searchByIdError := http.Get("https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=" + firstBreedId + "&api_key=live_dnADHUMZofKkKEslnylF3VJTmvafvStFpbjjOHxuhAXVIjSRAYN4uUJnR5JZcXT1")
+	breedByIdUrl := "https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=" + firstBreedId + "&api_key=live_dnADHUMZofKkKEslnylF3VJTmvafvStFpbjjOHxuhAXVIjSRAYN4uUJnR5JZcXT1"
+	dataOfaBreed, breedByIdError := myutils.HttpGetRequest(breedByIdUrl)
 
-	if searchByIdError != nil {
-		fmt.Println("Error while requesting search by id")
+	if breedByIdError != nil {
+		fmt.Println("Something went wrong while getting data from server")
 	}
-	dataOfaBreed, errrrr := io.ReadAll(resp.Body)
-
-	if errrrr != nil {
-		fmt.Println("Error while reading search by id from body")
-	}
+	
+	//convert json byte and store data to struct
 	parseABreedError := json.Unmarshal(dataOfaBreed, aBreed)
 	if parseABreedError != nil {
 		fmt.Print("something happend while parsing json data")
 	}
+	//declare a map to store breed information
 	var breedInfo = make(map[string]interface{})
+
+	//set data to map
 	breedInfo["Name"] = (*aBreed)[0].Breeds[0].Name
 	breedInfo["ID"] = (*aBreed)[0].Breeds[0].ID
 	breedInfo["Description"] = (*aBreed)[0].Breeds[0].Description
@@ -70,18 +68,15 @@ func (c *MainController) Get() {
 	breedInfo["Weight"] = (*aBreed)[0].Breeds[0].Weight.Metric
 	breedInfo["LifeSpan"] = (*aBreed)[0].Breeds[0].LifeSpan
 	breedInfo["Wikipedia"] = (*aBreed)[0].Breeds[0].WikipediaURL
+	//declare a slice to hold image url
 	var images []string
 	for i := 0; i < len(*aBreed); i++ {
-
 		images = append(images, (*aBreed)[i].URL)
 	}
 	breedInfo["Images"] = images
 
+	//set data to pass template
 	c.Data["BreedInfo"] = breedInfo
-	// fmt.Print(breedsNameAndId)
-	// fmt.Println(string(data))
-	c.Data["Website"] = "rashedul.me"
-	c.Data["Email"] = "rashedulb13@gmail.com"
 	c.Data["breeds"] = breedsNameAndId
 	c.TplName = "index.tpl"
 }

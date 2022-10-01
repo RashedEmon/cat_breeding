@@ -1,7 +1,7 @@
+//get data from server
 async function getCatByBreed(id){
   
   const url=`http://127.0.0.1:8080/cat/${id}`;
-  console.log(url)
   try{
     const res= await fetch(url)
     // console.log(jsonData)
@@ -11,6 +11,7 @@ async function getCatByBreed(id){
   }
   return "error"
 }
+//create description div
 function descriptionCreator(data){
     return `<div>
     <h1>${data.Name}</h1>
@@ -23,9 +24,9 @@ function descriptionCreator(data){
     </div>
     <span class="p-2 text-left"> <a href="${data.Wikipedia}">Wikipedia</a> </span>`
 }
-
+//create courousel image
 function courouselImageCreator(data){
-    res=''
+    let res=''
     data.Images.forEach((element,idx) => {
         if(idx==0){
             res+=`<div class="carousel-item h-[50vh] object-cover active">
@@ -39,23 +40,21 @@ function courouselImageCreator(data){
     });
   return res
 }
-
+//create corousel indicator
 function corouselIndicatorCreator(data){
-    res=''
+    var res="";
     data.Images.forEach((element,idx) => {
-        if(idx==0){
+        if(idx===0){
             res+=`<li data-target="#carouselExampleIndicators" data-slide-to="${idx}" class="active"></li>`
         }else{
-            res+=`<li data-target="#carouselExampleIndicators" data-slide-to="${idx}></li>`
+            res+=`<li data-target="#carouselExampleIndicators" data-slide-to="${idx} class=""></li>`
         }
     });
     return res
 }
 
-
-document.getElementById("inputGroupSelect01").addEventListener('change',async (e)=>{
-    console.log(e.target.value)
-    
+//listen change of dropdown send request to server and set data to ui
+document.getElementById("inputGroupSelect01").addEventListener('change',async (e)=>{    
     const data=await getCatByBreed(e.target.value)
     document.getElementById('corousel_indicator').innerHTML=corouselIndicatorCreator(data)
     document.getElementById('corousel_image').innerHTML=courouselImageCreator(data)
