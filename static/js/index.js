@@ -14,13 +14,13 @@ async function getCatByBreed(id){
 //create description div
 function descriptionCreator(data){
     return `<div>
-    <h1>${data.Name}</h1>
-    <h3>id:${data.ID}</h3>
+    <h1 class="text-dark text-2 py-2">${data.Name}</h1>
+    <h3 class="text-dark">id:${data.ID}</h3>
     <p class="text-left">${data.Description}</p>
     <i>${data.Temperament}</i>
     <p>${data.Origin}</p>
-    <p>${data.Weight}</p>
-    <p>${data.LifeSpan}</p>
+    <p>${data.Weight} kgs</p>
+    <p>${data.LifeSpan} average life span</p>
     </div>
     <span class="p-2 text-left"> <a href="${data.Wikipedia}">Wikipedia</a> </span>`
 }
