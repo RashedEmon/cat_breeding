@@ -53,7 +53,7 @@
                     </div>
                     <div class="card-footer text-muted" id="description">
                       <div >
-                        <h1 class="text-dark text-2">{{.BreedInfo.Name}}</h1>
+                        <h1 class="text-dark text-2xl py-2">{{.BreedInfo.Name}}</h1>
                         <h3 class="text-dark">id:{{.BreedInfo.ID}}</h3>
                         <p class="text-left">{{.BreedInfo.Description}}</p>
                         <i>{{.BreedInfo.Temperament}}</i>
